@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPS 95 Higher Pension Scheme ROI Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            cursor: pointer;
+            border-radius: 50%;
+            margin-top: -8px;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        input[type="range"]::-webkit-slider-track {
+            height: 8px;
+            background: linear-gradient(90deg, #e5e7eb, #d1d5db);
+            border-radius: 4px;
+        }
+        input[type="range"]::-moz-range-track {
+            height: 8px;
+            background: linear-gradient(90deg, #e5e7eb, #d1d5db);
+            border-radius: 4px;
+            border: none;
+        }
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .gradient-border {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1px;
+            border-radius: 12px;
+        }
+        .gradient-border > div {
+            background: white;
+            border-radius: 11px;
+        }
+        .error-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            background-color: #1f2937;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            width: 200px;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 text-gray-800 min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <div class="gradient-border inline-block mb-4">
+                <div class="px-8 py-4">
+                    <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        EPS 95 Higher Pension Scheme ROI Calculator
+                    </h1>
+                </div>
+            </div>
+            <p class="text-gray-600 mt-2 text-lg">Evaluate the return on investment for the enhanced pension option</p>
+            <div id="lastUpdated" class="text-xs text-gray-400 mt-2"></div>
+        </header>
+
+        <div id="errorBanner" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p id="errorText" class="text-sm text-red-700"></p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="hideError()" class="text-red-400 hover:text-red-600">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <div class="flex items-center justify-between mb-6 border-b pb-3">
+                    <h2 class="text-2xl font-bold text-blue-600">Input Panel</h2>
+                    <button onclick="resetToDefaults()" class="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md transition-colors">
+                        Reset Defaults
+                    </button>
+                </div>
+                
+                <form id="pensionForm" class="space-y-6">
+                    <div class="space-y-4 p-5 border-2 border-blue-100 rounded-xl bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
+                            <h3 class="text-lg font-semibold text-gray-700">Initial Investment & Adjustments</h3>
+                        </div>
+                        <div>
+                            <label for="lumpsumPaid" class="block text-sm font-medium text-gray-700 mb-1">
+                                Lump-sum Paid to EPFO
+                                <span class="tooltip ml-1">
+                                    <svg class="w-4 h-4 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-text">Amount paid to EPFO on April 1, 2025 for higher pension benefits</span>
+                                </span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">₹</span>
+                                <input type="number" id="lumpsumPaid" value="5000000" min="0" step="1000" 
+                                       class="mt-1 block w-full pl-8 pr-3 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-all">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">💡 Considered paid on April 1, 2025</p>
+                        </div>
+                        <div>
+                            <label for="arrearsReceived" class="block text-sm font-medium text-gray-700 mb-1">
+                                Arrears Received from EPFO
+                                <span class="tooltip ml-1">
+                                    <svg class="w-4 h-4 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-text">Backdate pension arrears received from EPFO</span>
+                                </span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">₹</span>
+                                <input type="number" id="arrearsReceived" value="1500000" min="0" step="1000"
+                                       class="mt-1 block w-full pl-8 pr-3 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-all">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">💡 Considered received on Sep 15, 2025</p>
+                        </div>
+                        <div>
+                            <label for="tdsOnArrears" class="block text-sm font-medium text-gray-700 mb-1">
+                                TDS Deducted on Arrears
+                                <span class="tooltip ml-1">
+                                    <svg class="w-4 h-4 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-text">Tax Deducted at Source on arrears payment</span>
+                                </span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">₹</span>
+                                <input type="number" id="tdsOnArrears" value="150000" min="0" step="1000"
+                                       class="mt-1 block w-full pl-8 pr-3 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-all">
+                            </div>
+                            <div class="text-xs text-green-600 mt-1 font-medium">
+                                Net Arrears: ₹<span id="netArrears">1350000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4 p-5 border-2 border-green-100 rounded-xl bg-gradient-to-r from-green-50/50 to-emerald-50/50">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">2</div>
+                            <h3 class="text-lg font-semibold text-gray-700">New Pension Details</h3>
+                        </div>
+                        <div>
+                            <label for="monthlyPension" class="block text-sm font-medium text-gray-700 mb-1">
+                                New Monthly Pension (Pre-Tax)
+                                <span class="tooltip ml-1">
+                                    <svg class="w-4 h-4 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-text">Monthly pension amount before tax deductions</span>
+                                </span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">₹</span>
+                                <input type="number" id="monthlyPension" value="50000" min="0" step="100"
+                                       class="mt-1 block w-full pl-8 pr-3 py-3 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-all">
+                            </div>
+                            <div class="text-xs text-green-600 mt-1 font-medium">
+                                Post-Tax: ₹<span id="postTaxPension">35000</span>/month
+                            </div>
+                        </div>
+                         <div>
+                            <label for="pensionStartDate" class="block text-sm font-medium text-gray-700 mb-1">Pension Start Date</label>
+                            <div class="flex space-x-2 mt-1">
+                                <select id="startMonth" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-all">
+                                </select>
+                                <input type="number" id="startYear" value="2025" min="2020" max="2030"
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="taxRatePension" class="block text-sm font-medium text-gray-700 mb-2">
+                                Tax Rate on Pension: <span class="font-bold text-blue-600"><span id="taxRatePensionValue">30.000</span>%</span>
+                            </label>
+                            <input type="range" id="taxRatePension" min="5" max="42.744" step="0.001" value="30" 
+                                   class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>5%</span>
+                                <span>42.744%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 p-5 border-2 border-purple-100 rounded-xl bg-gradient-to-r from-purple-50/50 to-pink-50/50">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">3</div>
+                            <h3 class="text-lg font-semibold text-gray-700">Personal Details</h3>
+                        </div>
+                        <div>
+                            <label for="pensionerDob" class="block text-sm font-medium text-gray-700 mb-1">
+                                Your Date of Birth
+                                <span class="tooltip ml-1">
+                                    <svg class="w-4 h-4 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-text">Used to calculate your current age and life expectancy</span>
+                                </span>
+                            </label>
+                            <input type="date" id="pensionerDob" value="1965-04-01" 
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-all">
+                        </div>
+                        <div>
+                            <label for="nomineeDob" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nominee's Date of Birth
+                                <span class="tooltip ml-1">
+                                    <svg class="w-4 h-4 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-text">Nominee receives 50% pension after your demise</span>
+                                </span>
+                            </label>
+                            <input type="date" id="nomineeDob" value="1968-04-01" 
+                                   class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 p-5 border-2 border-dashed border-yellow-200 rounded-xl bg-gradient-to-r from-yellow-50/50 to-amber-50/50">
+                        <div class="flex items-center space-x-2 mb-3">
+                            <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-white text-xs font-bold">ℹ</div>
+                            <h3 class="text-lg font-semibold text-yellow-800">For Information Only</h3>
+                        </div>
+                        <p class="text-xs text-yellow-700 mb-3 p-2 bg-yellow-100 rounded-md">
+                            ⚠️ These fields are for your reference and are <strong>not used</strong> in the ROI calculations below.
+                        </p>
+                        <div>
+                            <label for="pastPension" class="block text-sm font-medium text-gray-700 mb-1">Total Past Pension Received</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">₹</span>
+                                <input type="number" id="pastPension" value="2000000" min="0" step="1000"
+                                       class="mt-1 block w-full pl-8 pr-3 py-3 rounded-lg border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 sm:text-sm transition-all bg-yellow-50">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="pastTaxRate" class="block text-sm font-medium text-gray-700 mb-2">
+                                Avg. Tax on Past Pension: <span class="font-bold text-yellow-600"><span id="pastTaxRateValue">20.000</span>%</span>
+                            </label>
+                            <input type="range" id="pastTaxRate" min="5" max="42.744" step="0.001" value="20" 
+                                   class="w-full h-3 bg-yellow-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>5%</span>
+                                <span>42.744%</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <div class="flex items-center justify-between mb-6 border-b pb-3">
+                    <h2 class="text-2xl font-bold text-blue-600">Results Dashboard</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="exportResults()" class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            📊 Export Data
+                        </button>
+                        <button onclick="printResults()" class="text-sm bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            🖨️ Print
+                        </button>
+                    </div>
+                </div>
+                
+                <section class="mb-8">
+                    <h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">📊</div>
+                        Summary Overview
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl text-center border border-blue-200 hover:shadow-lg transition-shadow">
+                            <p class="text-sm text-blue-600 font-medium">Your Current Age</p>
+                            <p id="pensionerAge" class="text-3xl font-bold text-blue-800 mt-1">-</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl text-center border border-blue-200 hover:shadow-lg transition-shadow">
+                            <p class="text-sm text-blue-600 font-medium">Your Life Expectancy</p>
+                            <p id="pensionerLifeExp" class="text-3xl font-bold text-blue-800 mt-1">-</p>
+                        </div>
+                         <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl text-center border border-green-200 hover:shadow-lg transition-shadow">
+                            <p class="text-sm text-green-600 font-medium">Nominee's Current Age</p>
+                            <p id="nomineeAge" class="text-3xl font-bold text-green-800 mt-1">-</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl text-center border border-green-200 hover:shadow-lg transition-shadow">
+                            <p class="text-sm text-green-600 font-medium">Nominee's Life Expectancy</p>
+                            <p id="nomineeLifeExp" class="text-3xl font-bold text-green-800 mt-1">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl text-center border border-purple-200">
+                            <p class="text-sm text-purple-600 font-medium">Net Investment</p>
+                            <p id="netInvestment" class="text-xl font-bold text-purple-800 mt-1">₹0</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-xl text-center border border-orange-200">
+                            <p class="text-sm text-orange-600 font-medium">Monthly Post-Tax Pension</p>
+                            <p id="monthlyPostTax" class="text-xl font-bold text-orange-800 mt-1">₹0</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl text-center border border-indigo-200">
+                            <p class="text-sm text-indigo-600 font-medium">Annual Pension (Pre-Tax)</p>
+                            <p id="annualPension" class="text-xl font-bold text-indigo-800 mt-1">₹0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">📈</div>
+                        Return on Investment (IRR) Analysis
+                    </h3>
+                    
+                    <div id="performanceIndicator" class="mb-4 p-4 rounded-lg border-2 hidden">
+                        <div class="flex items-center">
+                            <div id="performanceIcon" class="mr-3"></div>
+                            <div>
+                                <p id="performanceTitle" class="font-semibold"></p>
+                                <p id="performanceDesc" class="text-sm"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto shadow-lg rounded-xl border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                        Scenario / Time Horizon
+                                    </th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                        Pre-Tax IRR (%)
+                                        <span class="tooltip ml-1">
+                                            <svg class="w-3 h-3 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span class="tooltip-text">Annual return before tax considerations</span>
+                                        </span>
+                                    </th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                        Post-Tax IRR (%)
+                                        <span class="tooltip ml-1">
+                                            <svg class="w-3 h-3 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span class="tooltip-text">Annual return after tax deductions</span>
+                                        </span>
+                                    </th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                        Total Pension (Pre-Tax)
+                                    </th>
+                                    <th class="px-6 py-4 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                        Total Pension (Post-Tax)
+                                    </th>
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                        Payback Period
+                                        <span class="tooltip ml-1">
+                                            <svg class="w-3 h-3 inline text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <span class="tooltip-text">Time to recover your investment</span>
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                        <div id="loader" class="text-center p-12 hidden">
+                            <div class="inline-flex items-center space-x-3">
+                                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="text-gray-600 font-medium">Calculating Returns...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="insightsPanel" class="mt-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                        <h4 class="font-bold text-blue-800 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Key Insights
+                        </h4>
+                        <div id="insights" class="space-y-2 text-sm text-blue-700">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="mt-12 text-center text-sm text-gray-500 border-t pt-6">
+            <p>💡 <strong>Disclaimer:</strong> This calculator provides estimates based on actuarial data (IALM 2012-14). 
+            Actual returns may vary based on policy changes, market conditions, and individual circumstances.</p>
+            <p class="mt-2">📞 For official information, please consult with EPFO or a qualified financial advisor.</p>
+            <p class="mt-2 text-xs">Last Updated: <span id="footerTimestamp"></span></p>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- ACTUARIAL DATA ---
+    // Indian Assured Lives Mortality (2012-14) Ultimate (IALM 2012-14)
+    const IALM_2012_14 = {
+        50: 89033, 51: 88478, 52: 87895, 53: 87282, 54: 86638, 55: 85961, 56: 85249, 57: 84499, 58: 83710, 59: 82879,
+        60: 82005, 61: 81084, 62: 80114, 63: 79093, 64: 78018, 65: 76887, 66: 75700, 67: 74454, 68: 73148, 69: 71781,
+        70: 70351, 71: 68856, 72: 67295, 73: 65668, 74: 63973, 75: 62211, 76: 60381, 77: 58485, 78: 56523, 79: 54497,
+        80: 52410, 81: 50264, 82: 48064, 83: 45814, 84: 43519, 85: 41185, 86: 38818, 87: 36425, 88: 34013, 89: 31590,
+        90: 29165, 91: 26746, 92: 24342, 93: 21961, 94: 19611, 95: 17300, 96: 15037, 97: 12830, 98: 10688, 99: 8620, 100: 6636
+    };
+    
+    const form = document.getElementById('pensionForm');
+    const allInputs = form.querySelectorAll('input, select');
+    const taxRatePensionValue = document.getElementById('taxRatePensionValue');
+    const pastTaxRateValue = document.getElementById('pastTaxRateValue');
+    const resultsBody = document.getElementById('resultsBody');
+    const loader = document.getElementById('loader');
+    const errorBanner = document.getElementById('errorBanner');
+    const errorText = document.getElementById('errorText');
+    
+    const SCENARIOS = [
+        { name: '5 Years', termMonths: 5 * 12, icon: '🎯' },
+        { name: '10 Years', termMonths: 10 * 12, icon: '📊' },
+        { name: '15 Years', termMonths: 15 * 12, icon: '📈' },
+        { name: '20 Years', termMonths: 20 * 12, icon: '🚀' },
+        { name: '25 Years', termMonths: 25 * 12, icon: '💎' },
+        { name: '30 Years', termMonths: 30 * 12, icon: '🏆' },
+        { name: 'Pensioner\'s Life Expectancy', type: 'pensioner_le', icon: '👤' },
+        { name: 'Pensioner + Nominee Life Exp.', type: 'pensioner_nominee_le', icon: '👥' }
+    ];
+
+    let calculationTimeout;
+    let validationErrors = [];
+
+    function initialize() {
+        populateMonthDropdown();
+        updateSliderLabels();
+        updateTimestamp();
+        
+        allInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                clearTimeout(calculationTimeout);
+                validateInput(this);
+                updateDependentFields();
+                calculationTimeout = setTimeout(runCalculations, 500);
+            });
+            
+            input.addEventListener('blur', function() {
+                validateInput(this);
+            });
+        });
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+        
+        runCalculations(); 
+    }
+    
+    function populateMonthDropdown() {
+        const monthSelect = document.getElementById('startMonth');
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        months.forEach((month, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = month;
+            monthSelect.appendChild(option);
+        });
+        monthSelect.value = "3"; 
+    }
+    
+    function updateSliderLabels() {
+        const taxRatePension = document.getElementById('taxRatePension');
+        const pastTaxRate = document.getElementById('pastTaxRate');
+        taxRatePensionValue.textContent = parseFloat(taxRatePension.value).toFixed(3);
+        pastTaxRateValue.textContent = parseFloat(pastTaxRate.value).toFixed(3);
+    }
+
+    function updateDependentFields() {
+        const arrearsReceived = parseFloat(document.getElementById('arrearsReceived').value) || 0;
+        const tdsOnArrears = parseFloat(document.getElementById('tdsOnArrears').value) || 0;
+        const netArrears = arrearsReceived - tdsOnArrears;
+        document.getElementById('netArrears').textContent = formatNumber(netArrears);
+        
+        const monthlyPension = parseFloat(document.getElementById('monthlyPension').value) || 0;
+        const taxRate = parseFloat(document.getElementById('taxRatePension').value) / 100;
+        const postTaxPension = monthlyPension * (1 - taxRate);
+        document.getElementById('postTaxPension').textContent = formatNumber(postTaxPension);
+    }
+
+    function updateTimestamp() {
+        const now = new Date();
+        const timestamp = now.toLocaleString();
+        document.getElementById('lastUpdated').textContent = `Last updated: ${timestamp}`;
+        document.getElementById('footerTimestamp').textContent = timestamp;
+    }
+
+    function validateInput(input) {
+        const value = parseFloat(input.value);
+        const errors = [];
+        
+        input.classList.remove('border-red-500', 'error-shake');
+        
+        switch (input.id) {
+            case 'lumpsumPaid':
+                if (value <= 0) errors.push('Lump-sum amount must be positive');
+                if (value > 100000000) errors.push('Lump-sum amount seems unrealistic');
+                break;
+            case 'arrearsReceived':
+                if (value < 0) errors.push('Arrears cannot be negative');
+                break;
+            case 'tdsOnArrears':
+                const arrears = parseFloat(document.getElementById('arrearsReceived').value) || 0;
+                if (value < 0) errors.push('TDS cannot be negative');
+                if (value > arrears) errors.push('TDS cannot exceed arrears amount');
+                break;
+            case 'monthlyPension':
+                if (value <= 0) errors.push('Monthly pension must be positive');
+                if (value > 1000000) errors.push('Monthly pension amount seems unrealistic');
+                break;
+            case 'pensionerDob':
+            case 'nomineeDob':
+                const dob = new Date(input.value);
+                const today = new Date();
+                const age = today.getFullYear() - dob.getFullYear();
+                if (age < 18) errors.push('Age must be at least 18 years');
+                if (age > 100) errors.push('Age seems unrealistic');
+                if (input.id === 'nomineeDob') {
+                    const pensionerDob = new Date(document.getElementById('pensionerDob').value);
+                    if (dob < pensionerDob) errors.push('Nominee should typically be younger than pensioner');
+                }
+                break;
+        }
+        
+        if (errors.length > 0) {
+            input.classList.add('border-red-500', 'error-shake');
+            showError(errors[0]);
+        }
+        
+        return errors.length === 0;
+    }
+
+    function showError(message) {
+        errorText.textContent = message;
+        errorBanner.classList.remove('hidden');
+        setTimeout(() => {
+            errorBanner.classList.add('hidden');
+        }, 5000);
+    }
+
+    function hideError() {
+        errorBanner.classList.add('hidden');
+    }
+
+    async function runCalculations() {
+        try {
+            loader.classList.remove('hidden');
+            resultsBody.classList.add('hidden');
+            
+            await new Promise(resolve => setTimeout(resolve, 10));
+            
+            updateSliderLabels();
+            updateDependentFields();
+            updateTimestamp();
+            
+            const inputs = getInputs();
+            
+            if (!validateAllInputs(inputs)) {
+                loader.classList.add('hidden');
+                return;
+            }
+            
+            const personalData = calculatePersonalData(inputs.pensionerDob, inputs.nomineeDob);
+            updateSummaryUI(personalData, inputs);
+            
+            const results = [];
+            for (const scenario of SCENARIOS) {
+                const result = calculateScenario(scenario, inputs, personalData);
+                results.push(result);
+            }
+            
+            renderResults(results);
+            updateInsights(results, inputs);
+            updatePerformanceIndicator(results);
+            
+            loader.classList.add('hidden');
+            resultsBody.classList.remove('hidden');
+            
+        } catch (error) {
+            console.error('Calculation error:', error);
+            showError('An error occurred during calculations. Please check your inputs.');
+            loader.classList.add('hidden');
+        }
+    }
+
+    function validateAllInputs(inputs) {
+        let isValid = true;
+        
+        Object.keys(inputs).forEach(key => {
+            if (typeof inputs[key] === 'number' && (isNaN(inputs[key]) || inputs[key] < 0)) {
+                isValid = false;
+            }
+        });
+        
+        if (!inputs.pensionerDob || !inputs.nomineeDob) {
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    function getInputs() {
+        return {
+            lumpsumPaid: parseFloat(document.getElementById('lumpsumPaid').value) || 0,
+            arrearsReceived: parseFloat(document.getElementById('arrearsReceived').value) || 0,
+            tdsOnArrears: parseFloat(document.getElementById('tdsOnArrears').value) || 0,
+            monthlyPension: parseFloat(document.getElementById('monthlyPension').value) || 0,
+            startMonth: parseInt(document.getElementById('startMonth').value),
+            startYear: parseInt(document.getElementById('startYear').value),
+            taxRatePension: parseFloat(document.getElementById('taxRatePension').value) / 100,
+            pensionerDob: document.getElementById('pensionerDob').value,
+            nomineeDob: document.getElementById('nomineeDob').value,
+        };
+    }
+
+    function calculatePersonalData(pensionerDobStr, nomineeDobStr) {
+        const today = new Date();
+        const pensionerAge = calculateAge(pensionerDobStr, today);
+        const nomineeAge = calculateAge(nomineeDobStr, today);
+        
+        const pensionerLifeExp = calculateLifeExpectancy(pensionerAge);
+        const nomineeLifeExp = calculateLifeExpectancy(nomineeAge);
+        
+        return {
+            pensionerAge,
+            nomineeAge,
+            pensionerLifeExp,
+            nomineeLifeExp
+        };
+    }
+
+    function calculateScenario(scenario, inputs, personalData) {
+        let termInMonths;
+        let pensionerTermMonths;
+        let nomineeTermMonths = 0;
+
+        if (scenario.type === 'pensioner_le') {
+            pensionerTermMonths = Math.round(personalData.pensionerLifeExp * 12);
+            termInMonths = pensionerTermMonths;
+        } else if (scenario.type === 'pensioner_nominee_le') {
+            const pensionerDob = new Date(inputs.pensionerDob);
+            const nomineeDob = new Date(inputs.nomineeDob);
+            
+            pensionerTermMonths = Math.round(personalData.pensionerLifeExp * 12);
+
+            const pensionerEndDate = new Date();
+            pensionerEndDate.setMonth(pensionerEndDate.getMonth() + pensionerTermMonths);
+            const nomineeAgeAtPensionerEnd = calculateAge(nomineeDob, pensionerEndDate);
+
+            const nomineeRemainingLifeExp = calculateLifeExpectancy(nomineeAgeAtPensionerEnd);
+            nomineeTermMonths = Math.round(nomineeRemainingLifeExp * 12);
+            termInMonths = pensionerTermMonths + nomineeTermMonths;
+        } else {
+            pensionerTermMonths = scenario.termMonths;
+            termInMonths = scenario.termMonths;
+        }
+        
+        const cashflows = generateCashFlows(termInMonths, pensionerTermMonths, inputs);
+        
+        const preTaxIRR = calculateIRR(cashflows.preTax) * 100;
+        const postTaxIRR = calculateIRR(cashflows.postTax) * 100;
+        const paybackPeriod = calculatePaybackPeriod(cashflows.postTax);
+        
+        return {
+            name: scenario.name,
+            icon: scenario.icon || '📊',
+            termMonths: termInMonths,
+            preTaxIRR: isFinite(preTaxIRR) ? preTaxIRR : NaN,
+            postTaxIRR: isFinite(postTaxIRR) ? postTaxIRR : NaN,
+            totalPensionPreTax: cashflows.totalPensionPreTax,
+            totalPensionPostTax: cashflows.totalPensionPostTax,
+            paybackPeriod: paybackPeriod,
+        };
+    }
+
+    function generateCashFlows(totalTermMonths, pensionerTermMonths, inputs) {
+        const preTaxFlows = [];
+        const postTaxFlows = [];
+        let totalPensionPreTax = 0;
+        let totalPensionPostTax = 0;
+        
+        const lumpsumDate = new Date('2025-04-01');
+        preTaxFlows.push({ date: lumpsumDate, amount: -inputs.lumpsumPaid });
+        postTaxFlows.push({ date: lumpsumDate, amount: -inputs.lumpsumPaid });
+
+        const arrearsDate = new Date('2025-09-15');
+        const netArrears = inputs.arrearsReceived - inputs.tdsOnArrears;
+        preTaxFlows.push({ date: arrearsDate, amount: inputs.arrearsReceived });
+        postTaxFlows.push({ date: arrearsDate, amount: netArrears });
+        
+        const pensionStartDate = new Date(inputs.startYear, inputs.startMonth, 1);
+        
+        const postTaxMonthlyPension = inputs.monthlyPension * (1 - inputs.taxRatePension);
+        const nomineePreTaxPension = inputs.monthlyPension * 0.5;
+        const nomineePostTaxPension = nomineePreTaxPension * (1 - inputs.taxRatePension);
+
+        for (let i = 0; i < totalTermMonths; i++) {
+            const currentDate = new Date(pensionStartDate);
+            currentDate.setMonth(pensionStartDate.getMonth() + i);
+            currentDate.setDate(currentDate.getDate() + new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate() -1); // End of month
+
+            if (i < pensionerTermMonths) {
+                preTaxFlows.push({ date: currentDate, amount: inputs.monthlyPension });
+                postTaxFlows.push({ date: currentDate, amount: postTaxMonthlyPension });
+                totalPensionPreTax += inputs.monthlyPension;
+                totalPensionPostTax += postTaxMonthlyPension;
+            } else {
+                preTaxFlows.push({ date: currentDate, amount: nomineePreTaxPension });
+                postTaxFlows.push({ date: currentDate, amount: nomineePostTaxPension });
+                totalPensionPreTax += nomineePreTaxPension;
+                totalPensionPostTax += nomineePostTaxPension;
+            }
+        }
+        
+        return {
+            preTax: preTaxFlows,
+            postTax: postTaxFlows,
+            totalPensionPreTax,
+            totalPensionPostTax
+        };
+    }
+    
+    function calculateIRR(cashflows, guess = 0.001) {
+        if (cashflows.length < 2) return NaN;
+        cashflows.sort((a, b) => a.date - b.date);
+        
+        const MAX_ITERATIONS = 200;
+        const PRECISION = 1.0e-10;
+        
+        let rate = guess;
+        
+        for (let i = 0; i < MAX_ITERATIONS; i++) {
+            let npv = 0;
+            let derivative = 0;
+            const t0 = cashflows[0].date;
+
+            for (const cf of cashflows) {
+                const daysDiff = (cf.date - t0) / (1000 * 60 * 60 * 24);
+                const yearsDiff = daysDiff / 365.25;
+                const discountFactor = Math.pow(1 + rate, yearsDiff);
+                
+                npv += cf.amount / discountFactor;
+                if (yearsDiff > 0) {
+                    derivative -= (yearsDiff * cf.amount) / Math.pow(1 + rate, yearsDiff + 1);
+                }
+            }
+            
+            if (Math.abs(npv) < PRECISION) {
+                return rate;
+            }
+            
+            if (Math.abs(derivative) < PRECISION) {
+                return NaN;
+            }
+            
+            const newRate = rate - npv / derivative;
+            
+            if (Math.abs(newRate - rate) < PRECISION) {
+                return newRate;
+            }
+            
+            rate = Math.max(-0.99, Math.min(10, newRate));
+        }
+        
+        return NaN;
+    }
+
+    function calculatePaybackPeriod(cashflows) {
+        let cumulativeFlow = 0;
+        cashflows.sort((a, b) => a.date - b.date);
+        
+        for (let i = 0; i < cashflows.length; i++) {
+            cumulativeFlow += cashflows[i].amount;
+            if (cumulativeFlow > 0) {
+                const startDate = cashflows[0].date;
+                const paybackDate = cashflows[i].date;
+                const months = (paybackDate - startDate) / (1000 * 60 * 60 * 24 * 30.44);
+                return months / 12;
+            }
+        }
+        return null;
+    }
+
+    function calculateLifeExpectancy(age) {
+        if (!age || age < 50 || age > 100) return 0;
+        const intAge = Math.floor(age);
+        
+        const lx = IALM_2012_14[intAge];
+        if (!lx) return 0;
+        
+        let sum_lx_plus_t = 0;
+        for (let t = intAge + 1; t <= 100; t++) {
+            sum_lx_plus_t += IALM_2012_14[t] || 0;
+        }
+        
+        const curtateExpectation = sum_lx_plus_t / lx;
+        return curtateExpectation + 0.5; // Add 0.5 for a more accurate estimate
+    }
+    
+    // --- HELPERS ---
+    function updateSummaryUI(data, inputs) {
+        document.getElementById('pensionerAge').textContent = data.pensionerAge.toFixed(1) || '-';
+        document.getElementById('pensionerLifeExp').textContent = data.pensionerLifeExp.toFixed(1) + ' yrs' || '-';
+        document.getElementById('nomineeAge').textContent = data.nomineeAge.toFixed(1) || '-';
+        document.getElementById('nomineeLifeExp').textContent = data.nomineeLifeExp.toFixed(1) + ' yrs' || '-';
+        
+        // Additional Metrics
+        const netInvestment = inputs.lumpsumPaid - (inputs.arrearsReceived - inputs.tdsOnArrears);
+        const monthlyPostTax = inputs.monthlyPension * (1 - inputs.taxRatePension);
+        const annualPension = inputs.monthlyPension * 12;
+        
+        document.getElementById('netInvestment').textContent = formatCurrency(netInvestment);
+        document.getElementById('monthlyPostTax').textContent = formatCurrency(monthlyPostTax);
+        document.getElementById('annualPension').textContent = formatCurrency(annualPension);
+    }
+    
+    function renderResults(results) {
+        resultsBody.innerHTML = '';
+        results.forEach((res, index) => {
+            const row = document.createElement('tr');
+            const isLifeExpectancy = res.name.includes("Life");
+            const isGoodIRR = res.postTaxIRR > 8;
+            const isExcellentIRR = res.postTaxIRR > 12;
+            
+            row.className = `hover:bg-gray-50 transition-colors ${
+                isLifeExpectancy ? "bg-blue-50 border-l-4 border-blue-400 font-semibold" : ""
+            }`;
+            
+            const formatIRR = (irr) => {
+                if (isNaN(irr)) return '<span class="text-gray-400">N/A</span>';
+                const color = irr > 12 ? 'text-green-600 font-bold' : 
+                             irr > 8 ? 'text-blue-600 font-semibold' : 
+                             irr > 5 ? 'text-yellow-600' : 'text-red-600';
+                return `<span class="${color}">${irr.toFixed(2)}%</span>`;
+            };
+            
+            const formatPayback = (years) => {
+                if (!years) return '<span class="text-gray-400">Never</span>';
+                if (years < 1) return `<span class="text-green-600 font-semibold">${Math.round(years * 12)} months</span>`;
+                return `<span class="text-blue-600">${years.toFixed(1)} years</span>`;
+            };
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <span class="text-lg mr-2">${res.icon}</span>
+                        <span class="text-sm font-medium text-gray-900">${res.name}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${formatIRR(res.preTaxIRR)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${formatIRR(res.postTaxIRR)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">${formatCurrency(res.totalPensionPreTax)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">${formatCurrency(res.totalPensionPostTax)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">${formatPayback(res.paybackPeriod)}</td>
+            `;
+            resultsBody.appendChild(row);
+        });
+    }
+
+    function updateInsights(results, inputs) {
+        const insights = [];
+        const bestScenario = results.reduce((best, current) => 
+            (!isNaN(current.postTaxIRR) && current.postTaxIRR > (best.postTaxIRR || -Infinity)) ? current : best, {});
+        
+        const lifeExpectancyResult = results.find(r => r.name.includes("Pensioner's Life"));
+        const combinedLifeResult = results.find(r => r.name.includes("Pensioner + Nominee"));
+        
+        // Insight Gen
+        if (bestScenario.postTaxIRR > 15) {
+            insights.push(`🎉 <strong>Excellent Returns:</strong> Your best post-tax IRR is ${bestScenario.postTaxIRR.toFixed(2)}% in the "${bestScenario.name}" scenario.`);
+        } else if (bestScenario.postTaxIRR > 8) {
+            insights.push(`👍 <strong>Good Returns:</strong> Your best post-tax IRR is ${bestScenario.postTaxIRR.toFixed(2)}% in the "${bestScenario.name}" scenario.`);
+        } else {
+            insights.push(`⚠️ <strong>Low Returns:</strong> Your best post-tax IRR is only ${bestScenario.postTaxIRR.toFixed(2)}%. Consider reviewing your inputs.`);
+        }
+        
+        if (lifeExpectancyResult && !isNaN(lifeExpectancyResult.postTaxIRR)) {
+            if (lifeExpectancyResult.postTaxIRR > 10) {
+                insights.push(`💪 <strong>Life Expectancy Scenario:</strong> Strong ${lifeExpectancyResult.postTaxIRR.toFixed(2)}% returns over your expected lifetime.`);
+            } else {
+                insights.push(`📊 <strong>Life Expectancy Scenario:</strong> Moderate ${lifeExpectancyResult.postTaxIRR.toFixed(2)}% returns over your expected lifetime.`);
+            }
+        }
+        
+        const paybackScenarios = results.filter(r => r.paybackPeriod && r.paybackPeriod < 15);
+        if (paybackScenarios.length > 0) {
+            const fastestPayback = paybackScenarios.reduce((min, current) => 
+                current.paybackPeriod < min.paybackPeriod ? current : min);
+            insights.push(`⚡ <strong>Quick Payback:</strong> You'll recover your investment in ${fastestPayback.paybackPeriod.toFixed(1)} years in the "${fastestPayback.name}" scenario.`);
+        }
+        
+        const netInvestment = inputs.lumpsumPaid - (inputs.arrearsReceived - inputs.tdsOnArrears);
+        const monthlyPostTax = inputs.monthlyPension * (1 - inputs.taxRatePension);
+        const simplePayback = netInvestment / monthlyPostTax / 12;
+        
+        if (simplePayback < 10) {
+            insights.push(`🔄 <strong>Simple Payback:</strong> At current pension rates, simple payback is approximately ${simplePayback.toFixed(1)} years.`);
+        }
+        
+        // Tax Efficiency
+        const taxImpact = ((bestScenario.preTaxIRR - bestScenario.postTaxIRR) / bestScenario.preTaxIRR * 100);
+        if (taxImpact > 25) {
+            insights.push(`💰 <strong>Tax Impact:</strong> Taxes reduce your returns by ${taxImpact.toFixed(1)}%. Consider tax-efficient strategies.`);
+        }
+        
+        document.getElementById('insights').innerHTML = insights.join('<br>');
+    }
+
+    function updatePerformanceIndicator(results) {
+        const avgIRR = results.reduce((sum, r) => sum + (isNaN(r.postTaxIRR) ? 0 : r.postTaxIRR), 0) / 
+                      results.filter(r => !isNaN(r.postTaxIRR)).length;
+        
+        const indicator = document.getElementById('performanceIndicator');
+        const icon = document.getElementById('performanceIcon');
+        const title = document.getElementById('performanceTitle');
+        const desc = document.getElementById('performanceDesc');
+        
+        indicator.classList.remove('hidden', 'border-green-500', 'border-yellow-500', 'border-red-500', 'bg-green-50', 'bg-yellow-50', 'bg-red-50');
+        
+        if (avgIRR > 12) {
+            indicator.classList.add('border-green-500', 'bg-green-50');
+            icon.innerHTML = `<div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">A+</div>`;
+            title.textContent = 'Excellent Investment Performance';
+            desc.textContent = `Average post-tax IRR of ${avgIRR.toFixed(1)}% across scenarios indicates strong returns.`;
+        } else if (avgIRR > 8) {
+            indicator.classList.add('border-blue-500', 'bg-blue-50');
+            icon.innerHTML = `<div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">B+</div>`;
+            title.textContent = 'Good Investment Performance';
+            desc.textContent = `Average post-tax IRR of ${avgIRR.toFixed(1)}% across scenarios shows solid returns.`;
+        } else if (avgIRR > 5) {
+            indicator.classList.add('border-yellow-500', 'bg-yellow-50');
+            icon.innerHTML = `<div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">C</div>`;
+            title.textContent = 'Moderate Investment Performance';
+            desc.textContent = `Average post-tax IRR of ${avgIRR.toFixed(1)}% across scenarios shows moderate returns.`;
+        } else {
+            indicator.classList.add('border-red-500', 'bg-red-50');
+            icon.innerHTML = `<div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">D</div>`;
+            title.textContent = 'Below Average Performance';
+            desc.textContent = `Average post-tax IRR of ${avgIRR.toFixed(1)}% across scenarios indicates lower returns.`;
+        }
+        
+        indicator.classList.remove('hidden');
+    }
+
+    function calculateAge(dob, fromDate = new Date()) {
+        const birthDate = new Date(dob);
+        if (isNaN(birthDate)) return 0;
+        
+        let age = fromDate.getFullYear() - birthDate.getFullYear();
+        const m = fromDate.getMonth() - birthDate.getMonth();
+        
+        if (m < 0 || (m === 0 && fromDate.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        const yearStart = new Date(fromDate.getFullYear(), 0, 1);
+        const dayOfYear = (fromDate - yearStart) / (1000 * 60 * 60 * 24);
+        const birthDayOfYear = (birthDate - new Date(birthDate.getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24);
+        
+        let fraction = (dayOfYear - birthDayOfYear) / 365.25;
+        if(fraction < 0) fraction += 1;
+
+        return age + fraction;
+    }
+
+    function formatCurrency(value) {
+        if (Math.abs(value) >= 10000000) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 1
+            }).format(value / 10000000) + ' Cr';
+        } else if (Math.abs(value) >= 100000) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 1
+            }).format(value / 100000) + ' L';
+        }
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value);
+    }
+    
+    function formatNumber(value) {
+        return new Intl.NumberFormat('en-IN').format(value);
+    }
+    
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // --- DEFAULTS ---
+    window.resetToDefaults = function() {
+        document.getElementById('lumpsumPaid').value = '5000000';
+        document.getElementById('arrearsReceived').value = '1500000';
+        document.getElementById('tdsOnArrears').value = '150000';
+        document.getElementById('monthlyPension').value = '50000';
+        document.getElementById('startMonth').value = '3';
+        document.getElementById('startYear').value = '2025';
+        document.getElementById('taxRatePension').value = '30';
+        document.getElementById('pensionerDob').value = '1965-04-01';
+        document.getElementById('nomineeDob').value = '1968-04-01';
+        document.getElementById('pastPension').value = '2000000';
+        document.getElementById('pastTaxRate').value = '20';
+        
+        runCalculations();
+    };
+
+    window.exportResults = function() {
+        try {
+            const inputs = getInputs();
+            const personalData = calculatePersonalData(inputs.pensionerDob, inputs.nomineeDob);
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "EPS 95 Higher Pension Scheme ROI Analysis Report\n";
+            csvContent += `Generated on: ${new Date().toLocaleString()}\n\n`;
+            
+            // Input Summary
+            csvContent += "INPUT SUMMARY\n";
+            csvContent += `Lump-sum Paid,${inputs.lumpsumPaid}\n`;
+            csvContent += `Arrears Received,${inputs.arrearsReceived}\n`;
+            csvContent += `TDS on Arrears,${inputs.tdsOnArrears}\n`;
+            csvContent += `Monthly Pension,${inputs.monthlyPension}\n`;
+            csvContent += `Tax Rate,${(inputs.taxRatePension * 100).toFixed(2)}%\n`;
+            csvContent += `Pensioner Age,${personalData.pensionerAge.toFixed(1)}\n`;
+            csvContent += `Nominee Age,${personalData.nomineeAge.toFixed(1)}\n\n`;
+            
+            // Results
+            csvContent += "SCENARIO ANALYSIS\n";
+            csvContent += "Scenario,Pre-Tax IRR (%),Post-Tax IRR (%),Total Pension (Pre-Tax),Total Pension (Post-Tax),Payback Period (Years)\n";
+            
+            // Scenarios
+            const results = [];
+            for (const scenario of SCENARIOS) {
+                const result = calculateScenario(scenario, inputs, personalData);
+                results.push(result);
+                csvContent += `"${result.name}",${result.preTaxIRR.toFixed(2)},${result.postTaxIRR.toFixed(2)},${result.totalPensionPreTax},${result.totalPensionPostTax},${result.paybackPeriod ? result.paybackPeriod.toFixed(1) : 'N/A'}\n`;
+            }
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `EPS95_ROI_Analysis_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+        } catch (error) {
+            showError('Failed to export data. Please try again.');
+        }
+    };
+
+    window.printResults = function() {
+        const printWindow = window.open('', '_blank');
+        const resultsSection = document.querySelector('.lg\\:col-span-2').innerHTML;
+        
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>EPS 95 ROI Analysis Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    .no-print { display: none; }
+                    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+                    .summary-card { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                </style>
+            </head>
+            <body>
+                <h1>EPS 95 Higher Pension Scheme ROI Analysis</h1>
+                <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
+                ${resultsSection}
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.print();
+    };
+
+    initialize();
+});
+</script>
+</body>
+</html>
