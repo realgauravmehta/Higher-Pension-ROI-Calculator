@@ -706,15 +706,17 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (scenario.type === 'pensioner_nominee_le') {
             const pensionerDob = new Date(inputs.pensionerDob);
             const nomineeDob = new Date(inputs.nomineeDob);
-            
+
             pensionerTermMonths = Math.round(personalData.pensionerLifeExp * 12);
 
             const pensionerEndDate = new Date();
             pensionerEndDate.setMonth(pensionerEndDate.getMonth() + pensionerTermMonths);
+
             const nomineeAgeAtPensionerEnd = calculateAge(nomineeDob, pensionerEndDate);
 
             const nomineeRemainingLifeExp = calculateLifeExpectancy(nomineeAgeAtPensionerEnd);
             nomineeTermMonths = Math.round(nomineeRemainingLifeExp * 12);
+
             termInMonths = pensionerTermMonths + nomineeTermMonths;
         } else {
             pensionerTermMonths = scenario.termMonths;
